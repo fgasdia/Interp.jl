@@ -2,7 +2,7 @@
 
 Cubic (and PCHIP) interpolation with irregularly spaced points.
 
-**This package is not licensed.** I have approval to use this code in any non-commercial package from Steve Turley (see private email March 6, 2021).
+**This package is not licensed.** I (Forrest Gasdia) have approval to use this code in any non-commercial package from Steve Turley (see private email March 6, 2021).
 
 ## References
 
