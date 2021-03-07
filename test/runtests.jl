@@ -8,15 +8,9 @@ end
 import Interp.region
 
 const unitTests = true
-const graphicsTests = false
-const bumpTests = false
-
-if graphicsTests || bumpTests
-    using Plots
-end
 
 function regular_tests()
-    @testset "regular interpolation" begin
+    @testset "Regular interpolation" begin
         # Test not enough points exception
         x = range(1.0, stop=2.0, length=2)
         y = [2.0, 4.0]
@@ -62,7 +56,7 @@ function regular_tests()
 end
 
 function irr_coef_tests()
-    @testset "irregular interpolation coefficients test" begin
+    @testset "Irregular interpolation coefficients test" begin
         x = [0.2, 1.4, 3.8, 5.7]
         y = [1.5, 3.0, 3.7, 2.5]
         n = length(x)
@@ -80,7 +74,7 @@ function irr_coef_tests()
 end
 
 function irregular_tests()
-    @testset "irregular interpolation" begin
+    @testset "Irregular interpolation" begin
         # Test not enough points exception
         x = [1.0, 2.0]
         y = [2.0, 4.0]
@@ -180,58 +174,22 @@ function irregular_tests()
     end
 end
 
-function graphics_tests()
-    x = range(0.0, stop=pi, length=10)
-    y = sin.(x)
-
-    cs = CubicSpline(x,y)
-    xx = range(0.0, stop=pi, length=97)
-    yy = [interp(cs,v) for v in xx]
-    yyy = sin.(xx)
-
-    
-    scatter(x,y, markershape=:circle, label="data", title="Regular Interpolation")
-    plot!(xx,yy, linestyle=:dash, label="cubic")
-    plot!(xx,yyy, linestyle=:dot, label="exact")
-    
-    x = cumsum(rand(10));
-    x = (x.-x[1]).*pi/(x[10].-x[1])
-    y = sin.(x)
-    cs = CubicSpline(x,y)
-    xx = range(0.0, stop=pi, length=97)
-    yy = [interp(cs,v) for v in xx]
-    yyy = sin.(xx)
-
-    scatter(x,y, markershape=:circle, label="data", title="Irregular Interpolation, 10 Points")
-    plot!(xx,yy,  label="cubic")
-    plot!(xx,yyy,linestyle=:dot, label="exact")
-end
-
-function bump_tests()
-    x = [0.0, 0.1, 0.2, 0.3, 0.35, 0.55, 0.65, 0.75];
-    y = [0.0, 0.01, 0.02, 0.03, 0.5, 0.51, 0.52, 0.53];
-    xx = range(0.0,stop=0.75,length=400);
-    sp = CubicSpline(x,y);
-    yy = [interp(sp, v) for v in xx]
-    pc = pchip(x,y)
-    yyy = [interp(pc,v) for v in xx]
-    pc2 = pchip2(x,y)
-    yyy2 = [interp(pc2,v) for v in xx]
-
-    scatter(x,y, markershape=:circle, label="data", title="Cubic Interpolation")
-    plot!(xx,yy, linestyle=:dash, label="spline")
-    plot!(xx,yyy, linestyle=:dash, label="mean")
-    plot!(xx,yyy2, linestyle=:dash, label="quad")
-
-    pc3 = pchip3(x,y)
-    yyy3 = [interp(pc3,v) for v in xx]
-    scatter(x, y, markershape=:circle, label="data", title="PCHIP Interpolation")
-    plot!(xx, yyy3, linestyle=:dash, label="PCHIP")
-end
-
 function regular_pchip_tests()
+    x = range(1, stop=3.9, length=5)
+    y = cos.(x)
+    pc = pchip(x,y)
+
     @testset "Regular pchip" begin
-    end;
+        for i=1:5
+            # Continuity
+            @test interp(pc,x[i]) == y[i]
+        end
+        for i = 2:4
+            # Continuity of slope
+            eps = 0.000001
+            @test isapprox(slope(pc,x[i]-eps), slope(pc,x[i]+eps); atol=4*eps)
+        end
+    end
 end
 
 function irregular_pchip_tests()
@@ -256,14 +214,60 @@ if unitTests
     regular_tests()
     irr_coef_tests()
     irregular_tests()
-    # regular_pchip_tests()
-    # irregular_pchip_tests()
+    regular_pchip_tests()
+    irregular_pchip_tests()
 end
 
-if graphicsTests
-    graphics_tests()
+
+function graphics_tests()
+    x = range(0.0, stop=pi, length=10)
+    y = sin.(x)
+
+    cs = CubicSpline(x,y)
+    xx = range(0.0, stop=pi, length=97)
+    yy = [interp(cs,v) for v in xx]
+    yyy = sin.(xx)
+
+    
+    p = scatter(x,y, markershape=:circle, label="data", title="Regular Interpolation")
+    plot!(xx,yy, linestyle=:dash, label="cubic")
+    plot!(xx,yyy, linestyle=:dot, label="exact")
+    display(p)
+    
+    x = cumsum(rand(10));
+    x = (x.-x[1]).*pi/(x[10].-x[1])
+    y = sin.(x)
+    cs = CubicSpline(x,y)
+    xx = range(0.0, stop=pi, length=97)
+    yy = [interp(cs,v) for v in xx]
+    yyy = sin.(xx)
+
+    p = scatter(x,y, markershape=:circle, label="data", title="Irregular Interpolation, 10 Points")
+    plot!(xx,yy,  label="cubic")
+    plot!(xx,yyy,linestyle=:dot, label="exact")
+    display(p)
 end
 
-if bumpTests
-    bump_tests()
+function bump_tests()
+    x = [0.0, 0.1, 0.2, 0.3, 0.35, 0.55, 0.65, 0.75];
+    y = [0.0, 0.01, 0.02, 0.03, 0.5, 0.51, 0.52, 0.53];
+    xx = range(0.0,stop=0.75,length=400);
+    sp = CubicSpline(x,y);
+    yy = [interp(sp, v) for v in xx]
+    pc = pchip(x,y)
+    yyy = [interp(pc,v) for v in xx]
+    pc2 = pchip2(x,y)
+    yyy2 = [interp(pc2,v) for v in xx]
+
+    p = scatter(x,y, markershape=:circle, label="data", title="Cubic Interpolation")
+    plot!(xx,yy, linestyle=:dash, label="spline")
+    plot!(xx,yyy, linestyle=:dash, label="mean")
+    plot!(xx,yyy2, linestyle=:dash, label="quad")
+    display(p)
+
+    pc3 = pchip3(x,y)
+    yyy3 = [interp(pc3,v) for v in xx]
+    p = scatter(x, y, markershape=:circle, label="data", title="PCHIP Interpolation")
+    plot!(xx, yyy3, linestyle=:dash, label="PCHIP")
+    display(p)
 end

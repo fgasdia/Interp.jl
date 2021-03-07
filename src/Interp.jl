@@ -327,7 +327,7 @@ v = slope(pc, 1.2)
 ```
 """
 function slope(pc::PCHIP, v)
-    if v < minimum(pc) || v > maximum(pc.x)
+    if v < minimum(pc.x) || v > maximum(pc.x)
         error("Extrapolation not allowed")
     end
 
@@ -339,19 +339,19 @@ function slope(pc::PCHIP, v)
         ϕp = 6*t - 6*t²
         ψp = 3*t² - 2*t
 
-        return ϕ, ψ
+        return ϕp, ψp
     end
 
     t13 = (pc.x[i+1] - v)/pc.h[i]
     t24 = (v - pc.x[i])/pc.h[i]
 
-    ϕ13, ψ13 = aux(t13)
-    ϕ24, ψ24 = aux(t24)
+    ϕp13, ψp13 = aux(t13)
+    ϕp24, ψp24 = aux(t24)
 
-    H1, H3 = -ϕ13/pc.h[i], ψ13/pc.h[i]
-    H2, H4 = ϕ24/pc.h[i], ψ24
+    H1p, H3p = -ϕp13/pc.h[i], ψp13
+    H2p, H4p = ϕp24/pc.h[i], ψp24
 
-    return pc.y[i]*H1p(v) + pc.y[i+1]*H2p(v) + pc.d[i]*H3p(v) + pc.d[i+1]*H4p(v)
+    return pc.y[i]*H1p + pc.y[i+1]*H2p + pc.d[i]*H3p + pc.d[i+1]*H4p
 end
 
 """
