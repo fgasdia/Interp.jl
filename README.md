@@ -6,4 +6,4 @@ Cubic (and PCHIP) interpolation with irregularly spaced points.
 
 ## References
 
-Turley, R. Steven, "Cubic Interpolation with Irregularly-Spaced Points in Julia 1.4" (2018). _Faculty Publications_. 2177. [](https://scholarsarchive.byu.edu/facpub/2177)
+Turley, R. Steven, "Cubic Interpolation with Irregularly-Spaced Points in Julia 1.4" (2018). _Faculty Publications_. 2177. [https://scholarsarchive.byu.edu/facpub/2177](https://scholarsarchive.byu.edu/facpub/2177)
