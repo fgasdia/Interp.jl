@@ -260,9 +260,9 @@ function bump_tests()
     yyy2 = [interp(pc2,v) for v in xx]
 
     p = scatter(x,y, markershape=:circle, label="data", title="Cubic Interpolation")
-    plot!(xx,yy, linestyle=:dash, label="spline")
-    plot!(xx,yyy, linestyle=:dash, label="mean")
-    plot!(xx,yyy2, linestyle=:dash, label="quad")
+    plot!(xx,yy, linestyle=:dash, label="cubic spline")
+    plot!(xx,yyy, linestyle=:dash, label="pchip")
+    plot!(xx,yyy2, linestyle=:dash, label="quadratic pchip")
     display(p)
 
     pc3 = pchip3(x,y)

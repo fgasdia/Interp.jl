@@ -27,11 +27,11 @@ end
 
 Concrete type for the data needed to do a piecewise continuous hermite interpolation.
 """
-struct PCHIP{R,T}
+struct PCHIP{R,T,RT}
     x::R
     y::Vector{T}
     d::Vector{T}
-    h::Vector{T}
+    h::Vector{RT}
 end
 
 """
@@ -240,10 +240,10 @@ end
 (cs::CubicSpline)(v) = interp(cs, v)
 
 function interp(pc::PCHIP, v)
-    if v*(1 + EPS) < first(pc.x)
+    if v*(1 + EPS) < minimum(pc.x)
         error("Extrapolation not allowed, $v < $(first(pc.x))")
     end
-    if v*(1 - EPS) > last(pc.x)
+    if v*(1 - EPS) > maximum(pc.x)
         error("Extrapolation not allowed, $v > $(last(pc.x))")
     end
 
@@ -275,7 +275,7 @@ function interp(pc::PCHIP, v)
     if isnan(yv)
         h = pc.x[i+1] - pc.x[i]
         if h > 0
-            t = (pc.x[i+1]-v)/h
+            t = (pc.x[i+1] - v)/h
         else
             error("interp data is not monotonic, x[i] = $(x[i]), x[i+1]=$(x[i+1])")
         end
