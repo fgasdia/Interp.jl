@@ -1,0 +1,8 @@
+name = "Interp"
+uuid = "d386b2c8-2ee0-45b3-b4c0-024b01dc7e50"
+authors = ["fgasdia <17058025+fgasdia@users.noreply.github.com>", "R. Steven Turley <turley@byu.edu>"]
+version = "0.1.0"
+
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
