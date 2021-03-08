@@ -15,10 +15,10 @@ Concrete type for the data needed to do a cubic spline interpolation.
 """
 struct CubicSpline{R,T,RT}
     x::R
-    a::Vector{T}
-    b::Vector{T}
-    c::Vector{T}
-    d::Vector{T}
+    a::T
+    b::T
+    c::T
+    d::T
     alphabar::RT
 end
 
@@ -29,9 +29,9 @@ Concrete type for the data needed to do a piecewise continuous hermite interpola
 """
 struct PCHIP{R,T,RT}
     x::R
-    y::Vector{T}
-    d::Vector{T}
-    h::Vector{RT}
+    y::T
+    d::T
+    h::RT
 end
 
 """
@@ -46,8 +46,8 @@ function CubicSpline(x::AbstractVector, y::AbstractVector)
     end
 
     # Pre-allocate and fill columns and diagonals
-    yy = Vector{eltype(y)}(undef, len)
-    dd = Vector{eltype(x)}(undef, len)
+    yy = similar(y)
+    dd = similar(x)
 
     # Scale x so that the alpha values are better
     α = diff(x)
@@ -96,7 +96,7 @@ function CubicSpline(x::AbstractRange, y::AbstractVector)
     end
 
     # Pre-allocate and fill columns and diagonals
-    yy = Vector{eltype(y)}(undef, len)
+    yy = similar(y)
     dl = ones(len-1)
     dd = fill(4.0, len)
     dd[1] = 2.0
@@ -122,12 +122,13 @@ function CubicSpline(x::AbstractRange, y::AbstractVector)
     return CubicSpline(x, a, b, c, d, α)
 end
 
-# This version of pchip uses the mean value of the slopes
-# between data points on either side of the interpolation point
 """
     pchip(x, y)
 
 Creates the PCHIP structure needed for piecewise continuous cubic spline interpolation.
+
+This function uses the mean value of the slopes between data points on either side of the
+interpolation point.
 """
 function pchip(x, y)
     len = size(x, 1)
@@ -137,7 +138,7 @@ function pchip(x, y)
 
     h = diff(x)
 
-    d = Vector{eltype(y)}(undef, len)
+    d = similar(y)
     d[1] = (y[2] - y[1])/h[1]
     for i = 2:len-1
         d[i] = (y[i+1]/h[i] + y[i]*(1/h[i-1] - 1/h[i]) - y[i-1]/h[i-1])/2
@@ -147,7 +148,11 @@ function pchip(x, y)
     PCHIP(x, y, d, h)
 end
 
-# PCHIP with quadratic fit to determine slopes
+"""
+    pchip2(x, y)
+
+PCHIP with a quadratic fit to determine slopes.
+"""
 function pchip2(x, y)
     len = size(x,1)
     if len < 3
@@ -157,7 +162,7 @@ function pchip2(x, y)
     h = diff(x)
 
     # Pre-allocate and fill columns and diagonals
-    d = Vector{eltype(y)}(undef, len)
+    d = similar(y)
     d[1] = (y[2] - y[1])/h[1]
     for i = 2:len-1
         d[i] = (y[i] - y[i-1])*h[i]/(h[i-1]*(h[i-1] + h[i])) +
@@ -168,7 +173,11 @@ function pchip2(x, y)
     PCHIP(x, y, d, h)
 end
 
-# Real PCHIP
+"""
+    pchip3(x, y)
+
+This is the "real" PCHIP. Choose this for the closest match to MATLAB.
+"""
 function pchip3(x, y)
     len = size(x, 1)
 
@@ -180,7 +189,7 @@ function pchip3(x, y)
     Δ = diff(y)./h
 
     # Pre-allocate and fill columns and diagonals
-    d = Vector{eltype(y)}(undef, len)
+    d = similar(y)
 
     d[1] = Δ[1]
     for i = 2:len-1
@@ -241,10 +250,10 @@ end
 
 function interp(pc::PCHIP, v)
     if v*(1 + EPS) < minimum(pc.x)
-        error("Extrapolation not allowed, $v < $(first(pc.x))")
+        error("Extrapolation not allowed, $v < $(minimum(pc.x))")
     end
     if v*(1 - EPS) > maximum(pc.x)
-        error("Extrapolation not allowed, $v > $(last(pc.x))")
+        error("Extrapolation not allowed, $v > $(maximum(pc.x))")
     end
 
     i = region(pc.x, v)
