@@ -223,6 +223,7 @@ end
 
 """
     interp(cs::CubicSpline, v)
+    interp(pc::PCHIP, v)
 
 Interpolate to the value corresonding to v.
 
